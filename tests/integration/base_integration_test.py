@@ -10,7 +10,7 @@ from fashion_frontend.frontend import Frontend
 if TYPE_CHECKING:
     from typing import List
     from fashion_contract.service_pb2 import PredictResponse
-    from fashion_frontend.params import PredictParams, ImageBytesParams
+    from fashion_frontend.params import PredictParams, ImageBytesParams, ImagePathParams
     from fashion_frontend.result import PredictResult
 
 
@@ -39,6 +39,10 @@ class BaseIT(unittest.TestCase):
         return cls.__frontend.predict_image_bytes(image_bytes_params)
 
     @classmethod
+    def _send_image_path_params(cls, image_path_params: 'ImagePathParams') -> 'List[PredictResult]':
+        return cls.__frontend.predict_image_path(image_path_params)
+
+    @classmethod
     def _send(cls, request_params: 'PredictParams') -> 'List[PredictResult]':
         return cls.__frontend.predict(request_params)
 
@@ -49,7 +53,9 @@ class BaseIT(unittest.TestCase):
                                                          all_attributes=all_attributes)
         return cls.__grpc_stub.predict(predict_request)
 
-    def _assert_equal_single_prediction(self, predict_result: 'PredictResult', grpc_response: 'PredictResponse') -> None:
+    def _assert_equal_single_prediction(self,
+                                        predict_result: 'PredictResult',
+                                        grpc_response: 'PredictResponse') -> None:
         result_categories = predict_result.categories
         result_attributes = predict_result.attributes
 

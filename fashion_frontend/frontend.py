@@ -10,7 +10,7 @@ from fashion_frontend.result import PredictResult
 if TYPE_CHECKING:
     from typing import List
     from fashion_contract.service_pb2 import PredictResponse
-    from fashion_frontend.params import PredictParams, ImageBytesParams
+    from fashion_frontend.params import PredictParams, UnaryPredictParams, ImageBytesParams, ImagePathParams
 
 _DEFAULT_GRPC_PORT = 50051
 
@@ -31,7 +31,11 @@ class FrontendInterface(ABC):
         self._all_attributes = all_attributes
 
     @abstractmethod
-    def predict_image_bytes(self, image_bytes_request: 'ImageBytesParams') -> 'List[PredictResult]':
+    def predict_image_bytes(self, params: 'ImageBytesParams') -> 'List[PredictResult]':
+        pass
+
+    @abstractmethod
+    def predict_image_path(self, params: 'ImagePathParams') -> 'List[PredictResult]':
         pass
 
 
@@ -60,14 +64,37 @@ class Frontend(FrontendInterface):
         self.__channel = grpc.insecure_channel(f'{host}:{port}')
         self.__stub = PredictionServiceStub(self.__channel)
 
+    def predict(self, params: 'PredictParams') -> 'List[PredictResult]':
+        """
+        Predicts the categories and attributes for the given request
+        :param params: Params with the data to classify. The default values for
+                       all_categories and all_attributes are overridden by the values
+                       in the request if they exist
+        :return: the prediction results for the given params
+        """
+        return params.accept_frontend_interface(self)
+
     def predict_image_bytes(self, params: 'ImageBytesParams') -> 'List[PredictResult]':
         """
         Predicts the categories and attributes for the given image bytes
         :param params: Params with the image bytes to classify. The default values for
-        all_categories and all_attributes are overridden by the values in the request if they exist
+                       all_categories and all_attributes are overridden by the values in the request if they exist
         :return: a single element list with all the prediction results
         """
-        image_bytes = params.image_bytes
+        return self.__predict_unary_prediction(params)
+
+    def predict_image_path(self, params: 'ImagePathParams') -> 'List[PredictResult]':
+        """
+        Predicts the categories and attributes for the image in the given path
+        :param params: Params with path to the image to classify. The default values for
+                       all_categories and all_attributes are overridden by the values
+                       in the request if they exist
+        :return: a single element list with all the prediction results
+        """
+        return self.__predict_unary_prediction(params)
+
+    def __predict_unary_prediction(self, params: 'UnaryPredictParams') -> 'List[PredictResult]':
+        image_bytes = params.bytes
         all_categories = params.all_categories if params.all_categories else self._all_categories
         all_attributes = params.all_attributes if params.all_attributes else self._all_attributes
 
@@ -77,15 +104,6 @@ class Frontend(FrontendInterface):
         response: 'PredictResponse' = self.__stub.predict(request)
 
         return [PredictResult(response)]
-
-    def predict(self, params: 'PredictParams') -> 'List[PredictResult]':
-        """
-        Predicts the categories and attributes for the given request
-        :param params: Params with the data to classify. The default values for
-        all_categories and all_attributes are overridden by the values in the request if they exist
-        :return: the prediction results for the given params
-        """
-        return params.accept_frontend_interface(self)
 
     def __del__(self):
         self.__channel.close()
