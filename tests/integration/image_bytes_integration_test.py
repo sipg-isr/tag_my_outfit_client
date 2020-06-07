@@ -2,13 +2,13 @@ import os
 
 from typing import TYPE_CHECKING
 
-from fashion_frontend.params import ImageBytesParams
 from tests.integration.base_integration_test import BaseIT
+from outfit_tagging.client.params import ImageBytesParams
 
 if TYPE_CHECKING:
     from typing import List
-    from fashion_contract.service_pb2 import PredictResponse
-    from fashion_frontend.result import PredictResult
+    from outfit_tagging.interface.service_pb2 import PredictResponse
+    from outfit_tagging.client.result import PredictResult
 
 DATA_DIR = "tests/data"
 
@@ -47,9 +47,9 @@ class ImageBytesIT(BaseIT):
         print(f'Image bytes concrete send with all_categories={all_categories} and all_attributes={all_attributes}')
         for image_bytes in self.__image_bytes:
             # Predict using frontend
-            image_params: ImageBytesParams = ImageBytesParams(image_bytes,
-                                                              all_categories=all_categories,
-                                                              all_attributes=all_attributes)
+            image_params: 'ImageBytesParams' = ImageBytesParams(image_bytes,
+                                                                all_categories=all_categories,
+                                                                all_attributes=all_attributes)
             predict_results: 'List[PredictResult]' = self._send_image_bytes_params(image_params)
             grpc_response: 'PredictResponse' = self._send_grpc(image_bytes, all_categories, all_attributes)
             self.assertEqual(len(predict_results), 1)
@@ -60,10 +60,10 @@ class ImageBytesIT(BaseIT):
         print(f'Image bytes generic send with all_categories={all_categories} and all_attributes={all_attributes}')
         for image_bytes in self.__image_bytes:
             # Prediction using frontend
-            image_params: ImageBytesParams = ImageBytesParams(image_bytes,
-                                                              all_categories=all_categories,
-                                                              all_attributes=all_attributes)
-            predict_results: List[PredictResult] = self._send(image_params)
+            image_params: 'ImageBytesParams' = ImageBytesParams(image_bytes,
+                                                                all_categories=all_categories,
+                                                                all_attributes=all_attributes)
+            predict_results: 'List[PredictResult]' = self._send(image_params)
             grpc_response: 'PredictResponse' = self._send_grpc(image_bytes, all_categories, all_attributes)
 
             self.assertEqual(len(predict_results), 1)

@@ -1,6 +1,6 @@
 import unittest
 
-from fashion_frontend.params import ImagePathParams
+from outfit_tagging.client.params import ImagePathParams
 
 
 class ImagePathUT(unittest.TestCase):

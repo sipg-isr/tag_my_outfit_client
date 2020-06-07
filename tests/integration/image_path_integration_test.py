@@ -2,15 +2,16 @@ import os
 
 from typing import TYPE_CHECKING
 
-from fashion_frontend.params import ImagePathParams
 from tests.integration.base_integration_test import BaseIT
+from outfit_tagging.client.params import ImagePathParams
 
 if TYPE_CHECKING:
     from typing import List
-    from fashion_contract.service_pb2 import PredictResponse
-    from fashion_frontend.result import PredictResult
+    from outfit_tagging.interface.service_pb2 import PredictResponse
+    from outfit_tagging.client.result import PredictResult
 
 DATA_DIR = "tests/data"
+
 
 class ImagePathIT(BaseIT):
     """
@@ -46,9 +47,9 @@ class ImagePathIT(BaseIT):
         print(f'Image path concrete send with all_categories={all_categories} and all_attributes={all_attributes}')
         for image_path in self.__image_paths:
             # Predict using frontend
-            image_params: ImagePathParams = ImagePathParams(image_path,
-                                                            all_categories=all_categories,
-                                                            all_attributes=all_attributes)
+            image_params: 'ImagePathParams' = ImagePathParams(image_path,
+                                                              all_categories=all_categories,
+                                                              all_attributes=all_attributes)
             predict_results: 'List[PredictResult]' = self._send_image_path_params(image_params)
             with open(image_path, 'rb') as fp:
                 image_bytes = fp.read()
@@ -61,9 +62,9 @@ class ImagePathIT(BaseIT):
         print(f'Image path generic send with all_categories={all_categories} and all_attributes={all_attributes}')
         for image_path in self.__image_paths:
             # Predict using frontend
-            image_params: ImagePathParams = ImagePathParams(image_path,
-                                                            all_categories=all_categories,
-                                                            all_attributes=all_attributes)
+            image_params: 'ImagePathParams' = ImagePathParams(image_path,
+                                                              all_categories=all_categories,
+                                                              all_attributes=all_attributes)
             predict_results: 'List[PredictResult]' = self._send(image_params)
             with open(image_path, 'rb') as fp:
                 image_bytes = fp.read()

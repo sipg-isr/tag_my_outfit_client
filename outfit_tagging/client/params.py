@@ -1,11 +1,11 @@
-from abc import ABC, abstractmethod, abstractproperty
+from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 from pathlib import Path
 
 if TYPE_CHECKING:
     from typing import List, Union
-    from fashion_frontend.frontend import FrontendInterface
-    from fashion_frontend.result import PredictResult
+    from outfit_tagging.client.frontend import FrontendInterface
+    from outfit_tagging.client.result import PredictResult
 
 
 class PredictParams(ABC):

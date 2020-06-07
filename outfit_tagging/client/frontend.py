@@ -3,14 +3,13 @@ import grpc
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
-from fashion_contract.service_pb2 import PredictRequest
-from fashion_contract.service_pb2_grpc import PredictionServiceStub
-from fashion_frontend.result import PredictResult
+from outfit_tagging.interface.service_pb2 import PredictRequest
+from outfit_tagging.interface.service_pb2_grpc import TagMyOutfitServiceStub
+from outfit_tagging.client.result import PredictResult
 
 if TYPE_CHECKING:
     from typing import List
-    from fashion_contract.service_pb2 import PredictResponse
-    from fashion_frontend.params import PredictParams, UnaryPredictParams, ImageBytesParams, ImagePathParams
+    from outfit_tagging.client.params import PredictParams, UnaryPredictParams, ImageBytesParams, ImagePathParams
 
 _DEFAULT_GRPC_PORT = 50051
 
@@ -62,7 +61,7 @@ class Frontend(FrontendInterface):
         self.__host = host
         self.__port = port
         self.__channel = grpc.insecure_channel(f'{host}:{port}')
-        self.__stub = PredictionServiceStub(self.__channel)
+        self.__stub = TagMyOutfitServiceStub(self.__channel)
 
     def predict(self, params: 'PredictParams') -> 'List[PredictResult]':
         """

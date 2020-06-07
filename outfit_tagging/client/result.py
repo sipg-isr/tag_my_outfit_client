@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from typing import List, Tuple
-    from fashion_contract.service_pb2 import PredictResponse
+    from outfit_tagging.interface.service_pb2 import PredictResponse
 
 
 class PredictResult(object):
@@ -11,8 +11,8 @@ class PredictResult(object):
     """
 
     def __init__(self, predict_response: 'PredictResponse'):
-        self.__categories = list(map(lambda x: (x.label, x.value), predict_response.predicted_categories))
-        self.__attributes = list(map(lambda x: (x.label, x.value), predict_response.predicted_attributes))
+        self.__categories = list(map(lambda x: (x.label, x.value), predict_response.categories))
+        self.__attributes = list(map(lambda x: (x.label, x.value), predict_response.attributes))
 
     @property
     def categories(self) -> 'List[Tuple[str, float]]':

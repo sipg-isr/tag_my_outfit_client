@@ -1,6 +1,6 @@
 import unittest
 
-from fashion_frontend.params import ImageBytesParams
+from outfit_tagging.client.params import ImageBytesParams
 
 
 class ImageBytesUT(unittest.TestCase):

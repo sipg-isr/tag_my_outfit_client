@@ -3,15 +3,15 @@ import unittest
 
 from typing import TYPE_CHECKING
 
-from fashion_contract.service_pb2 import PredictRequest
-from fashion_contract.service_pb2_grpc import PredictionServiceStub
-from fashion_frontend.frontend import Frontend
+from outfit_tagging.interface.service_pb2_grpc import TagMyOutfitServiceStub
+from outfit_tagging.interface.service_pb2 import PredictRequest
+from outfit_tagging.client.frontend import Frontend
 
 if TYPE_CHECKING:
     from typing import List
-    from fashion_contract.service_pb2 import PredictResponse
-    from fashion_frontend.params import PredictParams, ImageBytesParams, ImagePathParams
-    from fashion_frontend.result import PredictResult
+    from outfit_tagging.interface.service_pb2 import PredictResponse
+    from outfit_tagging.client.params import PredictParams, ImageBytesParams, ImagePathParams
+    from outfit_tagging.client.result import PredictResult
 
 
 class BaseIT(unittest.TestCase):
@@ -19,15 +19,15 @@ class BaseIT(unittest.TestCase):
     Base class to define tests for the frontend
     """
 
-    __frontend: Frontend = None
-    __grpc_channel: grpc.Channel = None
-    __grpc_stub: PredictionServiceStub = None
+    __frontend: 'Frontend' = None
+    __grpc_channel: 'grpc.Channel' = None
+    __grpc_stub: 'TagMyOutfitServiceStub' = None
 
     @classmethod
     def setUpClass(cls) -> None:
         cls.__frontend = Frontend('localhost')
         cls.__grpc_channel = grpc.insecure_channel('localhost:50051')
-        cls.__grpc_stub = PredictionServiceStub(cls.__grpc_channel)
+        cls.__grpc_stub = TagMyOutfitServiceStub(cls.__grpc_channel)
 
     @classmethod
     def tearDownClass(cls) -> None:
@@ -48,9 +48,9 @@ class BaseIT(unittest.TestCase):
 
     @classmethod
     def _send_grpc(cls, image_bytes: bytes, all_categories: bool, all_attributes: bool) -> 'PredictResponse':
-        predict_request: PredictRequest = PredictRequest(image_data=image_bytes,
-                                                         all_categories=all_categories,
-                                                         all_attributes=all_attributes)
+        predict_request: 'PredictRequest' = PredictRequest(image_data=image_bytes,
+                                                           all_categories=all_categories,
+                                                           all_attributes=all_attributes)
         return cls.__grpc_stub.predict(predict_request)
 
     def _assert_equal_single_prediction(self,
@@ -59,8 +59,8 @@ class BaseIT(unittest.TestCase):
         result_categories = predict_result.categories
         result_attributes = predict_result.attributes
 
-        grpc_categories = grpc_response.predicted_categories
-        grpc_attributes = grpc_response.predicted_attributes
+        grpc_categories = grpc_response.categories
+        grpc_attributes = grpc_response.attributes
 
         self.assertEqual(len(result_categories), len(grpc_categories))
         for result_cat, grpc_cat in zip(result_categories, grpc_categories):
