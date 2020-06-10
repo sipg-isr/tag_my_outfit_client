@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING
+from collections import Iterable
+from copy import deepcopy
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from typing import List, Union
@@ -66,7 +68,7 @@ class ImageBytesParams(UnaryPredictParams):
         super().__init__(all_categories, all_attributes)
         if not isinstance(image_bytes, bytes):
             raise TypeError('Invalid type for image_bytes: bytes expected.')
-        self.__bytes = bytes(image_bytes)
+        self.__bytes = deepcopy(image_bytes)
 
     @property
     def bytes(self) -> bytes:
@@ -104,3 +106,37 @@ class ImagePathParams(UnaryPredictParams):
 
     def accept_frontend_interface(self, frontend: 'FrontendInterface') -> 'List[PredictResult]':
         return frontend.predict_image_path(self)
+
+
+class StreamPredictParams(PredictParams, ABC):
+    """
+    Abstract class for params that yield multiple images to classify
+    """
+
+    @property
+    @abstractmethod
+    def bytes(self) -> 'Iterable[bytes]':
+        """
+        :return: List of bytes of the images to classify
+        """
+        pass
+
+
+class ImageBytesBatchParams(StreamPredictParams):
+    """
+    Class to define the params for a request with batch of image bytes
+    """
+
+    def __init__(self, image_batch_bytes: 'Iterable[bytes]', all_categories: bool = None, all_attributes: bool = None):
+        super().__init__(all_categories=all_categories, all_attributes=all_attributes)
+        if not isinstance(image_batch_bytes, Iterable) \
+                or not all((isinstance(el, bytes) for el in image_batch_bytes)):
+            raise TypeError('Invalid type for image_batch_bytes: Iterable[bytes] expected.')
+        self.__bytes = deepcopy(image_batch_bytes)
+
+    @property
+    def bytes(self) -> 'Iterable[bytes]':
+        return self.__bytes
+
+    def accept_frontend_interface(self, frontend: 'FrontendInterface') -> 'List[PredictResult]':
+        return frontend.predict_image_bytes_batch(self)

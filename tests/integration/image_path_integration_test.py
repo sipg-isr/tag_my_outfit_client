@@ -51,9 +51,11 @@ class ImagePathIT(BaseIT):
                                                               all_categories=all_categories,
                                                               all_attributes=all_attributes)
             predict_results: 'List[PredictResult]' = self._send_image_path_params(image_params)
+            # Predict without frontend
             with open(image_path, 'rb') as fp:
                 image_bytes = fp.read()
-            grpc_response: 'PredictResponse' = self._send_grpc(image_bytes, all_categories, all_attributes)
+            grpc_response: 'PredictResponse' = self._send_grpc_unary(image_bytes, all_categories, all_attributes)
+            # Assert results
             self.assertEqual(len(predict_results), 1)
             self._assert_equal_single_prediction(predict_results[0], grpc_response)
 
@@ -66,9 +68,11 @@ class ImagePathIT(BaseIT):
                                                               all_categories=all_categories,
                                                               all_attributes=all_attributes)
             predict_results: 'List[PredictResult]' = self._send(image_params)
+            # Predict without frontend
             with open(image_path, 'rb') as fp:
                 image_bytes = fp.read()
-            grpc_response: 'PredictResponse' = self._send_grpc(image_bytes, all_categories, all_attributes)
+            grpc_response: 'PredictResponse' = self._send_grpc_unary(image_bytes, all_categories, all_attributes)
+            # Assert results
             self.assertEqual(len(predict_results), 1)
             self._assert_equal_single_prediction(predict_results[0], grpc_response)
 

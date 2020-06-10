@@ -51,7 +51,9 @@ class ImageBytesIT(BaseIT):
                                                                 all_categories=all_categories,
                                                                 all_attributes=all_attributes)
             predict_results: 'List[PredictResult]' = self._send_image_bytes_params(image_params)
-            grpc_response: 'PredictResponse' = self._send_grpc(image_bytes, all_categories, all_attributes)
+            # Predict without frontend
+            grpc_response: 'PredictResponse' = self._send_grpc_unary(image_bytes, all_categories, all_attributes)
+            # Assert results
             self.assertEqual(len(predict_results), 1)
             self._assert_equal_single_prediction(predict_results[0], grpc_response)
 
@@ -64,8 +66,9 @@ class ImageBytesIT(BaseIT):
                                                                 all_categories=all_categories,
                                                                 all_attributes=all_attributes)
             predict_results: 'List[PredictResult]' = self._send(image_params)
-            grpc_response: 'PredictResponse' = self._send_grpc(image_bytes, all_categories, all_attributes)
-
+            # Predict without frontend
+            grpc_response: 'PredictResponse' = self._send_grpc_unary(image_bytes, all_categories, all_attributes)
+            # Assert results
             self.assertEqual(len(predict_results), 1)
             self._assert_equal_single_prediction(predict_results[0], grpc_response)
 

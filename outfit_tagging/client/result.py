@@ -1,8 +1,8 @@
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from typing import List, Tuple
-    from outfit_tagging.interface.service_pb2 import PredictResponse
+    from typing import List, Tuple, Union
+    from outfit_tagging.interface.service_pb2 import PredictResponse, Prediction
 
 
 class PredictResult(object):
@@ -10,7 +10,7 @@ class PredictResult(object):
     Class to define responses from the server
     """
 
-    def __init__(self, predict_response: 'PredictResponse'):
+    def __init__(self, predict_response: 'Union[PredictResponse, Prediction]'):
         self.__categories = list(map(lambda x: (x.label, x.value), predict_response.categories))
         self.__attributes = list(map(lambda x: (x.label, x.value), predict_response.attributes))
 

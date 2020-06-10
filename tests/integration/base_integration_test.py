@@ -8,9 +8,9 @@ from outfit_tagging.interface.service_pb2 import PredictRequest
 from outfit_tagging.client.frontend import Frontend
 
 if TYPE_CHECKING:
-    from typing import List
-    from outfit_tagging.interface.service_pb2 import PredictResponse
-    from outfit_tagging.client.params import PredictParams, ImageBytesParams, ImagePathParams
+    from typing import List, Iterator
+    from outfit_tagging.interface.service_pb2 import PredictResponse, StreamPredictResponse
+    from outfit_tagging.client.params import PredictParams, ImageBytesParams, ImagePathParams, ImageBytesBatchParams
     from outfit_tagging.client.result import PredictResult
 
 
@@ -43,15 +43,28 @@ class BaseIT(unittest.TestCase):
         return cls.__frontend.predict_image_path(image_path_params)
 
     @classmethod
+    def _send_image_bytes_batch_params(cls, image_bytes_batch_params: 'ImageBytesBatchParams') -> 'List[PredictResult]':
+        return cls.__frontend.predict_image_bytes_batch(image_bytes_batch_params)
+
+    @classmethod
     def _send(cls, request_params: 'PredictParams') -> 'List[PredictResult]':
         return cls.__frontend.predict(request_params)
 
     @classmethod
-    def _send_grpc(cls, image_bytes: bytes, all_categories: bool, all_attributes: bool) -> 'PredictResponse':
+    def _send_grpc_unary(cls, image_bytes: bytes, all_categories: bool, all_attributes: bool) -> 'PredictResponse':
         predict_request: 'PredictRequest' = PredictRequest(image_data=image_bytes,
                                                            all_categories=all_categories,
                                                            all_attributes=all_attributes)
         return cls.__grpc_stub.predict(predict_request)
+
+    @classmethod
+    def _send_grpc_stream(cls, image_bytes_batch: 'List[bytes]', all_categories: bool, all_attributes: bool) \
+            -> 'StreamPredictResponse':
+        request_iterator: 'Iterator[PredictRequest]' = map(lambda x: PredictRequest(image_data=x,
+                                                                                    all_categories=all_categories,
+                                                                                    all_attributes=all_attributes),
+                                                           image_bytes_batch)
+        return cls.__grpc_stub.stream_predict(request_iterator)
 
     def _assert_equal_single_prediction(self,
                                         predict_result: 'PredictResult',
